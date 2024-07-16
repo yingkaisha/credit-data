@@ -1,0 +1,28 @@
+ERA5:
+    save_loc: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/TOTAL_2*'
+    save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_climo/'
+    year_range: [2018, 2022]
+    verif_variables: 
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null
+
+wxformer:
+    save_loc_rollout: '/glade/campaign/cisl/aiml/credit/medium/'
+    save_loc_gather: '/glade/campaign/cisl/aiml/gathered/' #'/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/'
+    save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/forecast_climo/'
+    year_range: [2018, 2020]
+    verif_variables: 
+        forecast_hour: null
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null

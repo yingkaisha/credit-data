@@ -6,8 +6,13 @@ from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
 
-sys.path.insert(0, '/glade/u/home/ksha/CREDIT/libs/')
+sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
+
+config_name = os.path.realpath('../verif_config.yml')
+
+with open(config_name, 'r') as stream:
+    conf = yaml.safe_load(stream)
 
 # parse input
 import argparse
@@ -18,6 +23,9 @@ args = vars(parser.parse_args())
 
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
+# ======================= #
+model_name = 'wxformer'
+# ======================= #
 
 # radius of days to compute climatology
 day_minus = -15; day_plus = 15
@@ -26,9 +34,9 @@ day_minus = -15; day_plus = 15
 filename_prefix = "-%m-%dT%HZ"
 
 # path and file info
-filename_OURS = sorted(glob('/glade/campaign/cisl/aiml/gathered/*.nc'))
-path_campaign = '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/forecast_climo/'
-
+filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
+path_campaign = glob(conf[model_name]['save_loc_clim'])
+                     
 # Variable names
 var_names = ['U500', 'Z500', 'Q500', 'T500', 'V500', 'U', 'V', 'T', 'Q', 'SP', 't2m']
 

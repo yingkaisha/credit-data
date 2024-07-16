@@ -6,8 +6,13 @@ from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
 
-sys.path.insert(0, '/glade/u/home/ksha/CREDIT/libs/')
+sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
+
+config_name = os.path.realpath('../verif_config.yml')
+
+with open(config_name, 'r') as stream:
+    conf = yaml.safe_load(stream)
 
 # parse input
 import argparse
@@ -18,35 +23,37 @@ args = vars(parser.parse_args())
 
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
-
+# ====================== #
+model_name = 'wxformer'
+# ====================== #
 
 leads_do = np.arange(240)
 
-path_verif = '/glade/derecho/scratch/ksha/CREDIT/verif/wxformer_rmse_{}_{}.nc'.format(verif_ind_start, verif_ind_end)
+path_verif = conf[model_name]['save_loc_verif']+'combined_rmse_{}_{}.nc'.format(verif_ind_start, verif_ind_end)
 
 # ---------------------------------------------------------------------------------------- #
 # ERA5 verif target
-filenames_ERA5 = sorted(glob('/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/TOTAL_*'))
-filenames_ERA5 = filenames_ERA5[-6:-1]
-ds_ERA5 = [vu.get_forward_data(fn) for fn in filenames_ERA5]
+filename_ERA5 = sorted(glob(conf['ERA5']['save_loc']))
+
+# pick years
+year_range = conf['ERA5']['year_range']
+years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
+filename_ERA5 = [fn for fn in filename_ERA5 if any(year in fn for year in years_pick)]
+
+# merge yearly ERA5 as one
+ds_ERA5 = [vu.get_forward_data(fn) for fn in filename_ERA5]
 ds_ERA5_merge = xr.concat(ds_ERA5, dim='time')
     
 # Select the specified variables and their levels
-variables_levels = {
-    'V500': None, 
-    'U500': None, 
-    'T500': None, 
-    'Q500': None, 
-    'Z500': None,
-    'SP': None, 
-    't2m': None,}
+variables_levels = conf['ERA5']['verif_variables']
 
+# subset merged ERA5 and unify coord names
 ds_ERA5_merge = vu.ds_subset_everything(ds_ERA5_merge, variables_levels)
 ds_ERA5_merge = ds_ERA5_merge.rename({'latitude':'lat','longitude':'lon'})
 
 # ---------------------------------------------------------------------------------------- #
 # forecast
-filename_OURS = sorted(glob('/glade/campaign/cisl/aiml/gathered/*.nc'))
+filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
 filename_OURS_backup = sorted(glob('/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/*.nc'))
 
 # manual input bad files in '/glade/campaign/cisl/aiml/gathered/'
@@ -65,8 +72,11 @@ for i, i_bad in enumerate(ind_bad):
     else:
         print('Replacement of bad file {} not found'.format(file_old))
         raise
-
-filename_OURS = [fn for fn in filename_OURS if '2018' in fn or '2019' in fn or '2020' in fn]
+        
+# pick years
+year_range = conf[model_name]['year_range']
+years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
+filename_OURS = [fn for fn in filename_OURS if any(year in fn for year in years_pick)]
 
 L_max = len(filename_OURS)
 assert verif_ind_end <= L_max, 'verified indices (days) exceeds the max index available'
@@ -94,7 +104,7 @@ for fn_ours in filename_OURS:
     
     verif_results.append(RMSE.drop_vars('time'))
 
-    print('Completedd: {}'.format(fn_ours))
+    print('Completed: {}'.format(fn_ours))
     
 # Combine verif results
 ds_verif = xr.concat(verif_results, dim='days')
