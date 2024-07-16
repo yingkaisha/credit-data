@@ -131,7 +131,7 @@ def process_file_group(file_list, output_dir, variables_levels, time_intervals=N
     args:
         file_list: a list of nc filenames
         output_dir: save combined nc to this place
-        variables_levels, time_intervals: see `ds_subset_level_time`
+        variables_levels, time_intervals: see `ds_subset_everything`
     """
 
     # get the folder name of the original, inidividual forecasts,
@@ -150,7 +150,7 @@ def process_file_group(file_list, output_dir, variables_levels, time_intervals=N
     # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
     ds = xr.open_mfdataset(file_list, 
                            combine='by_coords', 
-                           preprocess=lambda ds: ds_subset_level_time(ds, variables_levels, time_intervals), 
+                           preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
                            parallel=True)
     
     # make sure time coord is 'time'
