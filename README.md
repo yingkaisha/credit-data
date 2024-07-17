@@ -12,9 +12,12 @@ As of right now, it is only accessable to the NSF NCAR MILES group, but will be 
 
 ## Navigaition
 
-* `verification`: the folder contains the verification steps for CREDIT model runs. It is implemented with the following steps:
+* `libs`: A collection of functions/scripts used by this repository
+  * `verif_utils.py`: functions used for forecasts post-processing and verification.
+
+* `verification`: the folder contains verification steps for CREDIT model runs. It can be implemented with the following steps:
   * Edit `verif_config.yml`
   * Go through Jupyter notebooks from `STEP00` to `STEP02`
-  * Access scripts folder for systematic verification runs
+  * Access scripts folder for large-scale verification runs
   * Note: the verification setup has only been tested on the data analysis server of NSF NCAR: `casper.ucar.edu`
  
