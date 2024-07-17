@@ -1,5 +1,6 @@
 import os
 import sys
+import yaml
 from glob import glob
 from datetime import datetime, timedelta
 
@@ -27,6 +28,9 @@ verif_ind_end = int(args['verif_ind_end'])
 model_name = 'wxformer'
 # ======================= #
 
+leads_do = np.arange(6, 240+6, 6)
+leads_do = leads_do - 1 # -1 for Python indexing
+
 # radius of days to compute climatology
 day_minus = -15; day_plus = 15
 
@@ -35,10 +39,10 @@ filename_prefix = "-%m-%dT%HZ"
 
 # path and file info
 filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
-path_campaign = glob(conf[model_name]['save_loc_clim'])
+path_campaign = conf[model_name]['save_loc_clim']
                      
 # Variable names
-var_names = ['U500', 'Z500', 'Q500', 'T500', 'V500', 'U', 'V', 'T', 'Q', 'SP', 't2m']
+var_names = ['U500', 'Z500', 'Q500', 'T500', 'V500', 'SP', 't2m']
 
 # manual input bad files in '/glade/campaign/cisl/aiml/gathered/'
 # provide replacements in '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/'
@@ -73,7 +77,7 @@ for day_of_year in range(verif_ind_start, verif_ind_end):
     
     #center_doy_gw = day_of_year
     
-    for lead_time in np.arange(5, 241, 6):
+    for lead_time in leads_do:
         
         # Adjusting center hour for lead time
         lead_hour_of_day = (lead_time) % 24  
@@ -83,8 +87,9 @@ for day_of_year in range(verif_ind_start, verif_ind_end):
         
         flag_exist = os.path.exists(output_path)
 
-        if (flag_exist is False) or (flag_rerun):
-        #if flag_rerun:
+        if (flag_exist is False):
+            #if (flag_exist is False) or (flag_rerun):
+            #if flag_rerun:
             
             print('Missing: {}'.format(output_path))
             print('Processing day {}, lead time {}'.format(day_add_lead, lead_time+1))
