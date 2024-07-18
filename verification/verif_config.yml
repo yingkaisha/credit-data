@@ -21,7 +21,9 @@ ERA5:
 
 IFS:
     save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/IFS/'
-    year_range: [2018, 2022]
+    year_range: [2018, 2020]
+    longest_hour: 240
+    verif_hour: 6
     verif_variables:
         geopotential: [500,]
         specific_humidity: [500,]
@@ -45,6 +47,8 @@ wxformer:
     save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/forecast_climo/'
     year_range: [2018, 2020]
+    longest_hour: 240
+    verif_hour: 6
     verif_variables: 
         forecast_hour: null
         V500: null
