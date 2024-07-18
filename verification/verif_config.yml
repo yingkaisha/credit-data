@@ -6,7 +6,27 @@ geo:
     geo_file_nc: '/glade/u/home/ksha/CREDIT/data/ML_grid.nc'
     regrid_weights_numpy: '/glade/u/home/ksha/CREDIT/data/griddata_weights.npy'
 
-ERA5:
+ERA5_weatherbench:
+    save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_weatherbench/'
+    verif_variables:
+        geopotential: [500,]
+        specific_humidity: [500,]
+        temperature: [500,]
+        u_component_of_wind: [500,]
+        v_component_of_wind: [500,]
+        surface_pressure: null
+        2m_temperature: null
+    rename_variables:
+        geopotential: 'Z500'
+        specific_humidity: 'Q500'
+        temperature: 'T500'
+        u_component_of_wind: 'U500'
+        v_component_of_wind: 'V500'
+        surface_pressure: 'SP'
+        2m_temperature: 't2m'
+
+
+ERA5_ours:
     save_loc: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/TOTAL_2*'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_climo/'
     year_range: [2018, 2022]
@@ -21,9 +41,11 @@ ERA5:
 
 IFS:
     save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/IFS/'
+    save_loc_gather: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/IFS/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/IFS/'
     year_range: [2018, 2020]
-    longest_hour: 240
-    verif_hour: 6
+    lead_range: [6, 240]
+    verif_lead_range: [6, 240]
     verif_variables:
         geopotential: [500,]
         specific_humidity: [500,]
@@ -47,8 +69,8 @@ wxformer:
     save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/forecast_climo/'
     year_range: [2018, 2020]
-    longest_hour: 240
-    verif_hour: 6
+    lead_range: [1, 240]
+    verif_lead_range: [6, 240]
     verif_variables: 
         forecast_hour: null
         V500: null
