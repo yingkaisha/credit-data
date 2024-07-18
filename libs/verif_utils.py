@@ -36,6 +36,20 @@ def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+def lead_to_index(leads_exist, leads_verif):
+    '''
+    Check if a list of verified lead time exists in a list of all available lead times
+    return the index of the verified lead time.
+    '''
+    ind_lead = []
+    for lead_verif in leads_verif:
+        if lead_verif in leads_exist:
+            ind_lead.append(leads_exist.index(lead_verif))
+        else:
+            print('lead time {}h is not covered'.format(lead_verif))
+            raise
+    return ind_lead
+
 def get_forward_data(filename) -> xr.DataArray:
     '''
     Lazily opens the Zarr store on gladefilesystem.
