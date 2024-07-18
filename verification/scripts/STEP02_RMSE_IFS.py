@@ -25,8 +25,9 @@ args = vars(parser.parse_args())
 
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
+
 # ====================== #
-model_name = 'wxformer'
+model_name = 'IFS'
 lead_range = conf[model_name]['lead_range']
 verif_lead_range = conf[model_name]['verif_lead_range']
 
@@ -67,25 +68,7 @@ ds_ERA5_merge = ds_ERA5_merge.rename({'latitude':'lat','longitude':'lon'})
 # ---------------------------------------------------------------------------------------- #
 # forecast
 filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
-filename_OURS_backup = sorted(glob('/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/*.nc'))
 
-# manual input bad files in '/glade/campaign/cisl/aiml/gathered/'
-# provide replacements in '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/'
-# correct file info and rerun climo days/leads that touchs the bad files
-ind_bad = [206, 209, 211, 215, 360, 390, 400]
-filename_bad = []
-
-for i, i_bad in enumerate(ind_bad):
-    file_old = filename_OURS[i_bad]
-    file_new = filename_OURS_backup[i]
-
-    if os.path.basename(file_old) == os.path.basename(file_new):
-        filename_bad.append(file_new)
-        filename_OURS[i_bad] = filename_OURS_backup[i]
-    else:
-        print('Replacement of bad file {} not found'.format(file_old))
-        raise
-        
 # pick years
 year_range = conf[model_name]['year_range']
 years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
@@ -111,13 +94,13 @@ for fn_ours in filename_OURS:
     ds_ours = ds_ours.isel(time=ind_lead)
     
     ds_target = ds_ERA5_merge.sel(time=ds_ours['time']).compute()
-
+    
     # RMSE with latitude-based cosine weighting (check w_lat)
     RMSE = np.sqrt((w_lat* (ds_ours - ds_target)**2).mean(['lat', 'lon']))
     
     verif_results.append(RMSE.drop_vars('time'))
 
-    print('Completedd: {}'.format(fn_ours))
+    print('Completed: {}'.format(fn_ours))
     
 # Combine verif results
 ds_verif = xr.concat(verif_results, dim='days')
@@ -125,8 +108,6 @@ ds_verif = xr.concat(verif_results, dim='days')
 # Save the combined dataset
 print('Save to {}'.format(path_verif))
 ds_verif.to_netcdf(path_verif)
-
-
 
 
 
