@@ -24,12 +24,14 @@ args = vars(parser.parse_args())
 
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
-# ======================= #
+# ====================== #
 model_name = 'wxformer'
-# ======================= #
-
-leads_do = np.arange(6, 240+6, 6)
+verif_hour = conf[model_name]['verif_hour']
+longest_hour = conf[model_name]['longest_hour']
+leads_do = np.arange(verif_hour, longest_hour+verif_hour, verif_hour)
 leads_do = leads_do - 1 # -1 for Python indexing
+print('Verifying lead times: {}'.format(leads_do))
+# ====================== #
 
 # radius of days to compute climatology
 day_minus = -15; day_plus = 15
@@ -87,7 +89,7 @@ for day_of_year in range(verif_ind_start, verif_ind_end):
         
         flag_exist = os.path.exists(output_path)
 
-        if (flag_exist is False):
+        if flag_exist is False:
             #if (flag_exist is False) or (flag_rerun):
             #if flag_rerun:
             
@@ -103,4 +105,6 @@ for day_of_year in range(verif_ind_start, verif_ind_end):
             weighted_mean.to_netcdf(output_path)
             print('Save to {}'.format(output_path))
             print('Finished processing day {}, lead time {}'.format(day_add_lead, lead_time))
+        # else:
+        #     print('Skip {}'.format(output_path))
 
