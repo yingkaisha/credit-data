@@ -25,7 +25,6 @@ ERA5_weatherbench:
         surface_pressure: 'SP'
         2m_temperature: 't2m'
 
-
 ERA5_ours:
     save_loc: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/TOTAL_2*'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_climo/'
