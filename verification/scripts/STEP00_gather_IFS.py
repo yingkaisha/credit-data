@@ -48,6 +48,9 @@ verif_ind_end = int(args['verif_ind_end'])
 model_name = 'IFS'
 filename_prefix = 'IFS_%Y-%m-%dT%HZ.nc'
 save_loc = conf[model_name]['save_loc'] + filename_prefix
+# interpolation weights were computed for 90N -> 90S
+# IFS is 90S -> 90N, should be flipped
+flip_lat = True 
 # ======================= #
 
 # import original IFS from WeatherBench GS
@@ -70,6 +73,10 @@ ds_IFS = ds_IFS.isel(prediction_timedelta=slice(1, 42)) # <--- IFS lead time beg
 # IFS lat/lons
 x_IFS = np.array(ds_IFS['lon'])
 y_IFS = np.array(ds_IFS['lat'])
+
+if flip_lat:
+    y_IFS = np.flipud(y_IFS)
+    
 lon_IFS, lat_IFS = np.meshgrid(x_IFS, y_IFS)
 
 # OUR lat/lons
@@ -88,17 +95,14 @@ init_time = pd.to_datetime(ds_IFS['time'])
 # get forecast lead time
 N_leads = len(ds_IFS['prediction_timedelta'])
 # get variables
-list_var_names = list(ds_IFS .keys())
-
-# allocate regridded IFS on multi-lead times
-allocate_interp = np.empty((N_leads,)+shape_OURS)
+list_var_names = list(ds_IFS.keys())
 
 # interp weights
 temp_data = np.load(conf['geo']['regrid_weights_numpy'], allow_pickle=True)[()]
 vtx = temp_data['vtx']
 wts = temp_data['wts']
 
-for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
+for i_dt, dt_index in enumerate(init_time[2000:2001]):
     
     # init year is within selection 
     if dt_index.year in years_pick:
@@ -128,6 +132,9 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
             # loop through variables
             for var_name in list_var_names:
                 
+                # allocate regridded IFS on multi-lead times
+                allocate_interp = np.empty((N_leads,)+shape_OURS)
+                
                 # loop through lead times
                 for i_lead in range(N_leads):
 
@@ -135,6 +142,8 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
                     IFS_var = ds_IFS_slice[var_name].isel(time=0, prediction_timedelta=i_lead)
 
                     # ========================================================================== #
+                    if flip_lat:
+                        IFS_var = np.flipud(IFS_var)
                     # scipy.interpolate.griddata(method='linear') with manually inputted weights #
                     IFS_var_regrid = interpolate(IFS_var, vtx, wts)
                     IFS_var_regrid = np.reshape(IFS_var_regrid, shape_OURS)
@@ -170,11 +179,5 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
             # Save to netCDF4
             ds_IFS_regrid.to_netcdf(save_name)
             print('Save to {}'.format(save_name))
-        else:
-            print('Skip {}'.format(save_name))
-
-
-
-
 
 
