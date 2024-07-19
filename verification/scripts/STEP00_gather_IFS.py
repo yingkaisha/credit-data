@@ -46,7 +46,7 @@ verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
 # ======================= #
 model_name = 'IFS'
-filename_prefix = 'IFS_%Y-%m-%dT%HZ.nc'
+filename_prefix = '{}_%Y-%m-%dT%HZ.nc'.format(model_name)
 save_loc = conf[model_name]['save_loc'] + filename_prefix
 # interpolation weights were computed for 90N -> 90S
 # IFS is 90S -> 90N, should be flipped
@@ -102,7 +102,7 @@ temp_data = np.load(conf['geo']['regrid_weights_numpy'], allow_pickle=True)[()]
 vtx = temp_data['vtx']
 wts = temp_data['wts']
 
-for i_dt, dt_index in enumerate(init_time[2000:2001]):
+for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
     
     # init year is within selection 
     if dt_index.year in years_pick:
