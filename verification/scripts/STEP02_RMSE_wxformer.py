@@ -46,10 +46,10 @@ path_verif = conf[model_name]['save_loc_verif']+'combined_rmse_{}_{}_{}h_{}h_{}.
 
 # ---------------------------------------------------------------------------------------- #
 # ERA5 verif target
-filename_ERA5 = sorted(glob(conf['ERA5']['save_loc']))
+filename_ERA5 = sorted(glob(conf['ERA5_ours']['save_loc']))
 
 # pick years
-year_range = conf['ERA5']['year_range']
+year_range = conf['ERA5_ours']['year_range']
 years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
 filename_ERA5 = [fn for fn in filename_ERA5 if any(year in fn for year in years_pick)]
 
@@ -58,7 +58,7 @@ ds_ERA5 = [vu.get_forward_data(fn) for fn in filename_ERA5]
 ds_ERA5_merge = xr.concat(ds_ERA5, dim='time')
 
 # Select the specified variables and their levels
-variables_levels = conf['ERA5']['verif_variables']
+variables_levels = conf['ERA5_ours']['verif_variables']
 
 # subset merged ERA5 and unify coord names
 ds_ERA5_merge = vu.ds_subset_everything(ds_ERA5_merge, variables_levels)
