@@ -39,11 +39,12 @@ print('Verifying lead times: {}'.format(leads_verif))
 print('Verifying lead indices: {}'.format(ind_lead))
 # ====================== #
 
-path_verif = conf[model_name]['save_loc_verif']+'combined_rmse_{}_{}_{}h_{}h_{}.nc'.format(verif_ind_start, 
-                                                                                           verif_ind_end,
-                                                                                           verif_lead_range[0],
-                                                                                           verif_lead_range[-1],
-                                                                                           model_name)
+path_verif = conf[model_name]['save_loc_verif']+'combined_rmse_{:04d}_{:04d}_{:03d}h_{:03d}h_{}.nc'.format(
+                                                                                            verif_ind_start, 
+                                                                                            verif_ind_end,
+                                                                                            verif_lead_range[0],
+                                                                                            verif_lead_range[-1],
+                                                                                            model_name)
 
 # ---------------------------------------------------------------------------------------- #
 # ERA5 verif target
@@ -57,7 +58,7 @@ filename_ERA5 = [fn for fn in filename_ERA5 if any(year in fn for year in years_
 # merge yearly ERA5 as one
 ds_ERA5 = [vu.get_forward_data(fn) for fn in filename_ERA5]
 ds_ERA5_merge = xr.concat(ds_ERA5, dim='time')
-
+    
 # Select the specified variables and their levels
 variables_levels = conf['ERA5_ours']['verif_variables']
 
@@ -84,6 +85,13 @@ lat = xr.open_dataset(filename_OURS[0])["lat"]
 w_lat = np.cos(np.deg2rad(lat))
 w_lat = w_lat / w_lat.mean()
 
+# some of the forecast files have lat/lon as masked arrays
+# this may result-in a mismatch between the weatherbench clim (lat/lon arrays) and the fcst (masked arrays)
+# it only happens to some CREDIT rollouts but will be applied to IFS as well
+OURS_dataset = xr.open_dataset(conf['geo']['geo_file_nc'])
+x_OURS = np.array(OURS_dataset['longitude'])
+y_OURS = np.array(OURS_dataset['latitude'])
+
 # ---------------------------------------------------------------------------------------- #
 # RMSE compute
 verif_results = []
@@ -92,6 +100,13 @@ for fn_ours in filename_OURS:
     ds_ours = xr.open_dataset(fn_ours)
     ds_ours = vu.ds_subset_everything(ds_ours, variables_levels)
     ds_ours = ds_ours.isel(time=ind_lead)
+
+    # ============================== #
+    # resolve the masked array issue
+    ds_ours['lon'] = x_OURS
+    ds_ours['lat'] = y_OURS
+    # ============================== #
+    ds_ours = ds_ours.compute()
     
     ds_target = ds_ERA5_merge.sel(time=ds_ours['time']).compute()
     

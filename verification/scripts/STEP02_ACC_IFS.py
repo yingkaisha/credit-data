@@ -26,7 +26,7 @@ args = vars(parser.parse_args())
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
 # ====================== #
-model_name = 'wxformer'
+model_name = 'IFS'
 lead_range = conf[model_name]['lead_range']
 verif_lead_range = conf[model_name]['verif_lead_range']
 
@@ -41,11 +41,12 @@ print('Verifying lead indices: {}'.format(ind_lead))
 def sp_avg(DS, wlat):
     return DS.weighted(wlat).mean(['lat', 'lon'], skipna=True)
 
-path_verif = conf[model_name]['save_loc_verif']+'combined_acc_{}_{}_{}h_{}h_{}.nc'.format(verif_ind_start, 
-                                                                                          verif_ind_end,
-                                                                                          verif_lead_range[0],
-                                                                                          verif_lead_range[-1],
-                                                                                          model_name)
+path_verif = conf[model_name]['save_loc_verif']+'combined_acc_{:04d}_{:04d}_{:03d}h_{:03d}h_{}.nc'.format(
+                                                                                            verif_ind_start, 
+                                                                                            verif_ind_end,
+                                                                                            verif_lead_range[0],
+                                                                                            verif_lead_range[-1],
+                                                                                            model_name)
 
 # ERA5 climatology info
 ERA5_path_string = conf['ERA5_weatherbench']['save_loc_clim'] + 'ERA5_clim_1990_2019_6h_interp.nc'
@@ -74,24 +75,6 @@ ds_ERA5_merge = ds_ERA5_merge.rename({'latitude':'lat','longitude':'lon'})
 # ---------------------------------------------------------------------------------------- #
 # forecast
 filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
-filename_OURS_backup = sorted(glob('/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/*.nc'))
-
-# manual input bad files in '/glade/campaign/cisl/aiml/gathered/'
-# provide replacements in '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/'
-# correct file info and rerun climo days/leads that touchs the bad files
-ind_bad = [206, 209, 211, 215, 360, 390, 400]
-filename_bad = []
-
-for i, i_bad in enumerate(ind_bad):
-    file_old = filename_OURS[i_bad]
-    file_new = filename_OURS_backup[i]
-
-    if os.path.basename(file_old) == os.path.basename(file_new):
-        filename_bad.append(file_new)
-        filename_OURS[i_bad] = filename_OURS_backup[i]
-    else:
-        print('Replacement of bad file {} not found'.format(file_old))
-        raise
         
 # pick years
 year_range = conf[model_name]['year_range']
@@ -108,9 +91,16 @@ lat = xr.open_dataset(filename_OURS[0])["lat"]
 w_lat = np.cos(np.deg2rad(lat))
 w_lat = w_lat / w_lat.mean()
 
+# some of the forecast files have lat/lon as masked arrays
+# this may result-in a mismatch between the weatherbench clim (lat/lon arrays) and the fcst (masked arrays)
+# it only happens to some CREDIT rollouts but will be applied to IFS as well
+OURS_dataset = xr.open_dataset(conf['geo']['geo_file_nc'])
+x_OURS = np.array(OURS_dataset['longitude'])
+y_OURS = np.array(OURS_dataset['latitude'])
+
 acc_results = []
 
-for fn_ours in filename_OURS[1:2]:
+for fn_ours in filename_OURS:
     # --------------------------------------------------------------- #
     # import and subset forecast
     ds_ours = xr.open_dataset(fn_ours)
@@ -118,6 +108,13 @@ for fn_ours in filename_OURS[1:2]:
     ds_ours = ds_ours.isel(time=ind_lead)
     dayofyear = ds_ours['time.dayofyear']
     hourofday = ds_ours['time'].dt.hour
+
+    # ============================== #
+    # resolve the masked array issue
+    ds_ours['lon'] = x_OURS
+    ds_ours['lat'] = y_OURS
+    # ============================== #
+    ds_ours = ds_ours.compute()
     
     # --------------------------------------------------------------- #
     # get ERA5 verification target
@@ -125,7 +122,7 @@ for fn_ours in filename_OURS[1:2]:
     
     # --------------------------------------------------------------- #
     # get ERA5 climatology
-    ds_clim_target = ds_ERA5_clim.sel(dayofyear=dayofyear, hour=hourofday)
+    ds_clim_target = ds_ERA5_clim.sel(dayofyear=dayofyear, hour=hourofday).compute()
     
     # ========================================== #
     # ERA5 anomaly
