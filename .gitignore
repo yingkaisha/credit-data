@@ -5,6 +5,8 @@
 old/*
 scripts/old/*
 
+*config.yml
+
 qsub/*
 qsub/*.out
 qsbu/*.err
