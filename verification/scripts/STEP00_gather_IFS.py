@@ -103,6 +103,9 @@ vtx = temp_data['vtx']
 wts = temp_data['wts']
 
 for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
+
+    # indexing could start from nonzero
+    i_dt = i_dt + verif_ind_start
     
     # init year is within selection 
     if dt_index.year in years_pick:
