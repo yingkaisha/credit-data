@@ -7,7 +7,9 @@ geo:
     regrid_weights_numpy: '/glade/u/home/ksha/CREDIT/data/griddata_weights.npy'
 
 ERA5_weatherbench:
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_weatherbench/interp/'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_weatherbench/'
+    year_range: [2018, 2022]
     verif_variables:
         geopotential: [500,]
         specific_humidity: [500,]
@@ -64,7 +66,7 @@ IFS:
 
 wxformer:
     save_loc_rollout: '/glade/campaign/cisl/aiml/credit/medium/'
-    save_loc_gather: '/glade/campaign/cisl/aiml/gathered/' #'/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/'
+    save_loc_gather: '/glade/campaign/cisl/aiml/gathered/'
     save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/'
     save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/forecast_climo/'
     year_range: [2018, 2020]
