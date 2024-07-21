@@ -56,6 +56,19 @@ def get_forward_data(filename) -> xr.DataArray:
     '''
     dataset = xr.open_zarr(filename, consolidated=True)
     return dataset
+
+def get_forward_data_netCDF4(filename) -> xr.DataArray:
+    """Lazily opens netCDF4 files.
+    """
+    dataset = xr.open_dataset(filename)
+    return dataset
+
+def get_forward_data(filename) -> xr.DataArray:
+    '''
+    Lazily opens the Zarr store on gladefilesystem.
+    '''
+    dataset = xr.open_zarr(filename, consolidated=True)
+    return dataset
     
 
 def get_nc_files(base_dir, folder_prefix='%Y-%m-%dT%HZ'):
@@ -138,7 +151,7 @@ def ds_subset_everything(ds, variables_levels, time_intervals=None):
         
     return ds_selected
 
-def process_file_group(file_list, output_dir, variables_levels, time_intervals=None):
+def process_file_group(file_list, output_dir, variables_levels, time_intervals=None, size_thres=4000000000):
     """
     Process a group of NetCDF files, combining them into a single NetCDF file.
 
@@ -156,23 +169,31 @@ def process_file_group(file_list, output_dir, variables_levels, time_intervals=N
     output_file = os.path.join(output_dir, f'{subdir_name}.nc')
     print('Output name: {}'.format(output_file))
     
-    # Check if the output file already exists
-    if os.path.exists(output_file):
-        print(f"Skipping {subdir_name} as {output_file} already exists.")
-        return
-
-    # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
-    ds = xr.open_mfdataset(file_list, 
-                           combine='by_coords', 
-                           preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
-                           parallel=True)
+    # Check if the output file exists and its sizes
+    flag_run = True
     
-    # make sure time coord is 'time'
-    ds = ds.rename({'datetime': 'time'})
-
-    # Save the dataset
-    ds.to_netcdf(output_file)
-    ds.close()
+    if os.path.exists(output_file):
+        
+        # not an empty file
+        if os.path.getsize(output_file) > size_thres:
+            
+            print("Skipping {} as {} already exists.".format(subdir_name, output_file))
+            flag_run = False
+        
+    if flag_run:
+        
+        # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
+        ds = xr.open_mfdataset(file_list, 
+                               combine='by_coords', 
+                               preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
+                               parallel=True)
+        
+        # make sure time coord is 'time'
+        ds = ds.rename({'datetime': 'time'})
+    
+        # Save the dataset
+        ds.to_netcdf(output_file)
+        ds.close()
 
 def get_doy_range(doy, days_before, days_after):
     '''
