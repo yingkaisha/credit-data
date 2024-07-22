@@ -18,8 +18,8 @@ Content:
         - gaussian_weights_for_temporal_sum
         - weighted_temporal_sum
 
-    Calculate verification scores
-        
+Yingkai Sha
+ksha@ucar.edu      
 '''
 
 import os
