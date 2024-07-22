@@ -120,7 +120,6 @@ def ds_subset_everything(ds, variables_levels, time_intervals=None):
         ds: xarray.Dataset
         variables_levels: a dictionary that looks like this
             variables_levels = {
-                                'forecast_hour': None,
                                 'V500': None,  # Keep all levels
                                 'SP': None,
                                 't2m': None,
@@ -189,7 +188,10 @@ def process_file_group(file_list, output_dir, variables_levels, time_intervals=N
                                parallel=True)
         
         # make sure time coord is 'time'
-        ds = ds.rename({'datetime': 'time'})
+        try:
+            ds = ds.rename({'datetime': 'time'})
+        except:
+            pass
     
         # Save the dataset
         ds.to_netcdf(output_file)
