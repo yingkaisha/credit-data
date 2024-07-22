@@ -81,3 +81,21 @@ wxformer:
         Z500: null
         SP:  null
         t2m: null
+
+fuxi:
+    save_loc_rollout: '/glade/derecho/scratch/ksha/CREDIT/fuxi_norm/'
+    save_loc_gather: '/glade/derecho/scratch/ksha/CREDIT/fuxi_norm/gather/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/fuxi/'
+    year_range: [2018, 2020]
+    lead_range: [1, 240]
+    verif_lead_range: [6, 240]
+    verif_variables: 
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null
+        
+        
