@@ -111,10 +111,10 @@ for fn_ours in filename_OURS:
     ds_target = ds_ERA5_merge.sel(time=ds_ours['time']).compute()
     
     # RMSE with latitude-based cosine weighting (check w_lat)
-    RMSE = np.sqrt((w_lat* (ds_ours - ds_target)**2).mean(['lat', 'lon']))
+    RMSE = np.sqrt((w_lat*(ds_ours - ds_target)**2).mean(['lat', 'lon']))
     
     verif_results.append(RMSE.drop_vars('time'))
-
+    
     print('Completed: {}'.format(fn_ours))
     
 # Combine verif results

@@ -73,6 +73,7 @@ filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
 year_range = conf[model_name]['year_range']
 years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
 filename_OURS = [fn for fn in filename_OURS if any(year in fn for year in years_pick)]
+#filename_OURS = [fn for fn in filename_OURS if '00Z' in fn]
 
 L_max = len(filename_OURS)
 assert verif_ind_end <= L_max, 'verified indices (days) exceeds the max index available'
@@ -110,7 +111,9 @@ for fn_ours in filename_OURS:
     ds_target = ds_ERA5_merge.sel(time=ds_ours['time']).compute()
 
     # RMSE with latitude-based cosine weighting (check w_lat)
-    RMSE = np.sqrt((w_lat* (ds_ours - ds_target)**2).mean(['lat', 'lon']))
+    RMSE = np.sqrt(
+        (w_lat * (ds_ours-ds_target)**2).mean(['lat', 'lon'])
+    )
     
     verif_results.append(RMSE.drop_vars('time'))
 
