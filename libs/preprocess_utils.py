@@ -16,6 +16,12 @@ def get_forward_data(filename) -> xr.DataArray:
     return dataset
 
 def zscore_by_var(conf, varname):
+    '''
+    Compute mean and variance (can be converted to std) from yearly zarr or nc files
+    It combines two yearly files iteratively using the pooling equations:
+    https://math.stackexchange.com/questions/2971315/how-do-i-combine-standard-deviations-of-two-groups
+    The function relies on one of the credit-data/data_preprocessing/data_config.yml
+    '''
     # ------------------------------------------------------------------------------------ #
     # lists yearly files and open as xr.Dataset
     filenames = sorted(glob(conf['zscore'][varname]))
