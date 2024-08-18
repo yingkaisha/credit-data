@@ -1,3 +1,15 @@
+'''
+base_trainer.py
+-------------------------------------------------------
+Content:
+    - get_forward_data
+    - zscore_var
+    - residual_zscore_var
+
+Yingkai Sha
+ksha@ucar.edu
+'''
+
 import os
 import yaml
 import numpy as np
@@ -14,75 +26,6 @@ def get_forward_data(filename) -> xr.DataArray:
     else:
         dataset = xr.open_zarr(filename, consolidated=True)
     return dataset
-
-# def zscore_surface_var(conf, varname):
-#     '''
-#     Compute mean and variance (can be converted to std) from yearly zarr or nc files
-#     It combines two yearly files iteratively using the pooling equations:
-#     https://math.stackexchange.com/questions/2971315/how-do-i-combine-standard-deviations-of-two-groups
-#     The function relies on one of the credit-data/data_preprocessing/data_config.yml
-
-#     This function works for surface variables (no level coordinate)
-#     Input coordinates should be (time, longitude, latitude)
-#     XXXXXXXXXXXX combined to zscore_surface_var xxxxxxxxxxxxxxx
-#     '''
-#     # ------------------------------------------------------------------------------------ #
-#     # lists yearly files and open as xr.Dataset
-#     filenames = sorted(glob(conf['zscore'][varname]))
-    
-#     year_range = conf['zscore']['years_range']
-#     train_years = [str(year) for year in range(year_range[0], year_range[1])]
-#     train_files = [file for file in filenames if any(year in file for year in train_years)]
-    
-#     list_ds_train = []
-    
-#     for fn in train_files:
-#         list_ds_train.append(get_forward_data(fn))
-        
-#     # ------------------------------------------------------------------------------------ #
-#     ds_example = list_ds_train[0][varname]
-#     var_shape = ds_example.shape
-    
-#     N_grids = var_shape[-1] * var_shape[-2]
-#     mean_std_save = np.empty((2,))
-#     mean_std_save.fill(np.nan)
-    
-#     # ------------------------------------------------------------------------------------ #
-#     # loop thorugh files and compute mean and std 
-#     for i_fn, ds in enumerate(list_ds_train):
-        
-#         # get the xr.Dataset per var per level
-#         ds_subset = ds[varname]
-        
-#         # get mean and var for the current year
-#         mean_current_yr = float(ds_subset.mean())
-#         var_current_yr = float(ds_subset.var())
-#         L = len(ds_subset) * N_grids
-        
-#         print('{} - {}'.format(mean_current_yr, var_current_yr))
-            
-#         if i_fn == 0:
-#             # if it is the first year, pass current year to the combined 
-#             mean_std_save[0] = mean_current_yr
-#             mean_std_save[1] = var_current_yr
-#             N_samples = L
-            
-#         else:
-#             # https://math.stackexchange.com/questions/2971315/how-do-i-combine-standard-deviations-of-two-groups
-#             mean_new = (L * mean_current_yr + N_samples * mean_std_save[0]) / (L + N_samples)
-#             var_new = ((L - 1) * var_current_yr + (N_samples - 1) * mean_std_save[1]) / (L + N_samples - 1)
-#             var_new_adjust = (L * N_samples * (mean_current_yr - mean_std_save[0])**2) / (L + N_samples) / (L + N_samples -1)
-            
-#             mean_std_save[0] = mean_new
-#             mean_std_save[1] = var_new + var_new_adjust
-#             N_samples = N_samples + L
-            
-#             print('{} - {}'.format(mean_std_save[0], mean_std_save[1]))
-    
-#     save_name = conf['zscore']['save_loc'] + '{}_mean_std_{}.npy'.format(conf['zscore']['prefix'], varname)
-#     print('Save to {}'.format(save_name))
-#     np.save(save_name, mean_std_save)
-
 
 def zscore_var(conf, varname, ind_level=None):
     '''
@@ -159,6 +102,13 @@ def zscore_var(conf, varname, ind_level=None):
     np.save(save_name, mean_std_save)
 
 def residual_zscore_var(conf, varname, ind_level=None):
+    '''
+    Given yearly zarr or nc files, compute the zscore of a variable, apply 
+    np.diff on its 'time' coordinate, and compute the mean and std the resulting np.diff outputs.
+
+    This function works for all variables
+    Input coordinates should be (time, level, longitude, latitude)
+    '''
 
     filenames = sorted(glob(conf['residual'][varname]))
     
