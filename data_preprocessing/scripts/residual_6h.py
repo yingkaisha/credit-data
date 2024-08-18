@@ -27,5 +27,5 @@ config_name = os.path.realpath('../data_config_6h.yml')
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
 
-pu.zscore_var(conf, varname, level)
+pu.residual_zscore_var(conf, varname, level)
 
