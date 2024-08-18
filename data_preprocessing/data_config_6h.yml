@@ -17,6 +17,28 @@ zscore:
     Q500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
     tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
     save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
-    years_range: [1979, 2014]
-    prefix: '6h'
+    years_range: [1979, 2018]
+    prefix: '6h_2018'
+    
+residual:
+    U:    '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    V:    '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    T:    '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    Q:    '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    SP:   '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    t2m:  '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    V500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    U500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    T500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    Z500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    Q500: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
+    mean_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/mean_6h_1979_2018_0.25deg.nc'
+    std_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/std_6h_1979_2018_0.25deg.nc'
+    years_range: [1979, 2018]
+    prefix: '6h_2018_residual'
+
+
+
     
