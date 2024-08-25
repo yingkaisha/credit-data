@@ -1,22 +1,39 @@
 qsub:
     qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
     scripts_loc: '/glade/u/home/ksha/credit-data/data_preprocessing/scripts/'
-
-
+    
 zscore:
-    U:    '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    V:    '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    T:    '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    Q:    '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    SP:   '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    t2m:  '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    V500: '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    U500: '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    T500: '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    Z500: '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
-    Q500: '/glade/derecho/scratch/schreck/STAGING/TOTAL_*'
+    U:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
     tsi:  '/glade/derecho/scratch/dgagne/credit_solar_1h_0.25deg/*.nc'
     save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
-    years_range: [1979, 2014]
-    prefix: '1h'
+    years_range: [1979, 2018]
+    prefix: '1h_2018'
     
+residual:
+    U:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/y_TOTAL*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_1h_0.25deg/*.nc'
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
+    mean_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/mean_1h_1979_2018_16lev_0.25deg.nc'
+    std_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/std_1h_1979_2018_16lev_0.25deg.nc'
+    years_range: [1979, 2018]
+    prefix: '1h_2018_residual'
