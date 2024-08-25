@@ -27,7 +27,7 @@ def get_forward_data(filename) -> xr.DataArray:
         dataset = xr.open_zarr(filename, consolidated=True)
     return dataset
 
-def zscore_var(conf, varname, ind_level=None):
+def zscore_var(conf, varname, ind_level=None, flag_float64=True):
     '''
     Compute mean and variance (can be converted to std) from yearly zarr or nc files
     It combines two yearly files iteratively using the pooling equations:
@@ -67,14 +67,23 @@ def zscore_var(conf, varname, ind_level=None):
             ds_subset = ds[varname].isel(level=ind_level)
         else:
             ds_subset = ds[varname]
+
+        # use float64 for more accurate computation
+        if flag_float64:
+            ds_subset = ds_subset.astype('float64', copy=False)
         
         # get mean and var for the current year
-        mean_current_yr = float(ds_subset.mean())
-        var_current_yr = float(ds_subset.var())
+        mean_current_yr = float(ds_subset.mean(skipna=False).compute())
+        var_current_yr = float(ds_subset.var(skipna=False).compute())
         L = len(ds_subset) * N_grids
         
         print('{} - {}'.format(mean_current_yr, var_current_yr))
-            
+
+        if np.isnan(mean_current_yr):
+            print('NaN found in {}'.format(train_files[i_fn]))
+            print('variable name: {}'.format(varname))
+            raise
+        
         if i_fn == 0:
             # if it is the first year, pass current year to the combined 
             mean_std_save[0] = mean_current_yr
@@ -94,14 +103,14 @@ def zscore_var(conf, varname, ind_level=None):
             print('{} - {}'.format(mean_std_save[0], mean_std_save[1]))
             
     if ind_level is not None:
-        save_name = conf['zscore']['save_loc'] + '{}_level{}_mean_std_{}.npy'.format(conf['zscore']['prefix'], ind_level+1, varname)
+        save_name = conf['zscore']['save_loc'] + '{}_level{}_mean_std_{}.npy'.format(conf['zscore']['prefix'], ind_level, varname)
     else:
         save_name = conf['zscore']['save_loc'] + '{}_mean_std_{}.npy'.format(conf['zscore']['prefix'], varname)
         
     print('Save to {}'.format(save_name))
     np.save(save_name, mean_std_save)
 
-def residual_zscore_var(conf, varname, ind_level=None):
+def residual_zscore_var(conf, varname, ind_level=None, flag_float64=False):
     '''
     Given yearly zarr or nc files, compute the zscore of a variable, apply 
     np.diff on its 'time' coordinate, and compute the mean and std the resulting np.diff outputs.
@@ -140,6 +149,10 @@ def residual_zscore_var(conf, varname, ind_level=None):
 
     for i_fn, ds in enumerate(list_ds_train):
         
+        # use float64 for more accurate computation
+        if flag_float64:
+            ds.astype('float64', copy=False)
+        
         if ind_level is not None:
             ds = ds.isel(level=ind_level)
             
@@ -167,13 +180,23 @@ def residual_zscore_var(conf, varname, ind_level=None):
         
         ds_subset = ds_out['{}_diff'.format(varname)]
         
+        # assign float64 again to make sure
+        if flag_float64:
+            ds_subset = ds_subset.astype('float64', copy=False)
+        
         # get mean and var for the current year
-        mean_current_yr = float(ds_subset.mean())
-        var_current_yr = float(ds_subset.var())
+        mean_current_yr = float(ds_subset.mean(skipna=False).compute())
+        var_current_yr = float(ds_subset.var(skipna=False).compute())
+        
         L = len(ds_subset) * N_grids
         
         print('{} - {}'.format(mean_current_yr, var_current_yr))
-            
+
+        if np.isnan(mean_current_yr):
+            print('NaN found in {}'.format(train_files[i_fn]))
+            print('variable name: {}'.format(varname))
+            raise
+                    
         if i_fn == 0:
             # if it is the first year, pass current year to the combined 
             mean_std_save[0] = mean_current_yr
@@ -193,11 +216,104 @@ def residual_zscore_var(conf, varname, ind_level=None):
             print('{} - {}'.format(mean_std_save[0], mean_std_save[1]))
     
     if ind_level is not None:
-        save_name = conf['residual']['save_loc'] + '{}_level{}_mean_std_{}.npy'.format(conf['residual']['prefix'], ind_level+1, varname)
+        save_name = conf['residual']['save_loc'] + '{}_level{}_mean_std_{}.npy'.format(conf['residual']['prefix'], ind_level, varname)
     else:
         save_name = conf['residual']['save_loc'] + '{}_mean_std_{}.npy'.format(conf['residual']['prefix'], varname)
         
     print('Save to {}'.format(save_name))
     np.save(save_name, mean_std_save)
+
+
+def residual_zscore_var_split_years(conf, varname, year, ind_level=None, flag_float64=True):
+    '''
+    same as residual_zscore_var, but for a single year
+    '''
+    
+    filenames = sorted(glob(conf['residual'][varname]))
+        
+    year_range = [str(year),]
+    train_file = [file for file in filenames if any(year in file for year in year_range)][0]
+        
+    ds = ds_train = get_forward_data(train_file)
+        
+    # ------------------------------------------------------------------------------------ #
+    var_shape = ds_train[varname].shape
+    
+    N_grids = var_shape[-1] * var_shape[-2]
+    mean_std_N_save = np.empty((3,))
+    mean_std_N_save.fill(np.nan)
+
+    # ------------------------------------------------------------------------------------ #
+    # mean, std
+    ds_mean = xr.open_dataset(conf['residual']['mean_loc'])
+    ds_std = xr.open_dataset(conf['residual']['std_loc'])
+    
+    if ind_level is not None:
+        ds_mean = ds_mean.isel(level=ind_level)
+        ds_std = ds_std.isel(level=ind_level)
+        
+    # use float64 for more accurate computation
+    if flag_float64:
+        ds.astype('float64', copy=False)
+    
+    if ind_level is not None:
+        ds = ds.isel(level=ind_level)
+            
+    # ===================================================================== #
+    print('applying np.diff ...')
+    # apply np.diff
+    var_diff = xr.apply_ufunc(
+        np.diff,
+        (ds[varname] - ds_mean[varname]) / ds_std[varname],
+        input_core_dims=[['time']],
+        output_core_dims=[['time_diff']],  # Change this to a new dimension name
+        vectorize=True,
+        dask='allowed',
+        output_dtypes=[ds[varname].dtype]
+    )
+    
+    ds_out = var_diff.to_dataset(name='{}_diff'.format(varname))
+    
+    ds_out = ds_out.assign_coords(
+        time_diff=ds_out['time_diff'])
+    
+    ds_out = ds_out.transpose("time_diff", "latitude", "longitude")
+    print('... done')
+    
+    # ===================================================================== #
+    # compute the mean and std from the np.diff result
+    
+    ds_subset = ds_out['{}_diff'.format(varname)]
+    
+    # assign float64 again to make sure
+    if flag_float64:
+        ds_subset = ds_subset.astype('float64', copy=False)
+    
+    # get mean and var for the current year
+    mean_current_yr = float(ds_subset.mean(skipna=False).compute())
+    var_current_yr = float(ds_subset.var(skipna=False).compute())
+    
+    L = len(ds_subset) * N_grids
+        
+    print('{} - {}'.format(mean_current_yr, var_current_yr))
+    
+    if np.isnan(mean_current_yr):
+        print('NaN found in {}'.format(train_files[i_fn]))
+        print('variable name: {}'.format(varname))
+        raise
+                    
+    mean_std_N_save[0] = mean_current_yr
+    mean_std_N_save[1] = var_current_yr
+    mean_std_N_save[2] = L
+    
+    if ind_level is not None:
+        save_name = conf['residual']['save_loc'] + 'backup_{}_level{}_mean_std_{}_y{}.npy'.format(
+            conf['residual']['prefix'], ind_level, varname, year)
+    else:
+        save_name = conf['residual']['save_loc'] + 'backup_{}_mean_std_{}_y{}.npy'.format(
+            conf['residual']['prefix'], varname, year)
+        
+    print('Save to {}'.format(save_name))
+    np.save(save_name, mean_std_N_save)
 
 
