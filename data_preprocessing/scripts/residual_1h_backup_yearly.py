@@ -12,10 +12,12 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('varname', help='varname')
 parser.add_argument('level', help='level')
+parser.add_argument('year', help='year')
 args = vars(parser.parse_args())
 
 varname = args['varname']
 level = args['level']
+year = int(args['year'])
 
 if level == 'None':
     level = None
@@ -27,5 +29,5 @@ config_name = os.path.realpath('../data_config_1h.yml')
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
 
-pu.zscore_var(conf, varname, level)
+pu.residual_zscore_var_split_years(conf, varname, year, level, flag_float64=True)
 
