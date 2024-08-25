@@ -17,6 +17,9 @@ As of right now, it is only accessable to the NSF NCAR MILES group, but will be 
   * `score_utils.py`: function sued for computing certain verification scores.
   * `graph_utils.py`: data visualization functions.
 
+* `data_preprocessing`: this folder contains data pre-processing step for CREDIT model runs.
+  * This folder is under construction; it contains ERA5 pressure level and model level preprocessing, static field preprocessing, zscore computation, and residual norm computation.   
+
 * `verification`: this folder contains verification steps for CREDIT model runs. It can be implemented as follows:
   * Copy `verif_config_template.yml` to `verif_config.yml` and modify based on your file directories
   * Go through Jupyter notebooks from `STEP00` to `STEP02`
