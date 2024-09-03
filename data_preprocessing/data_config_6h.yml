@@ -2,6 +2,16 @@ qsub:
     qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
     scripts_loc: '/glade/u/home/ksha/credit-data/data_preprocessing/scripts/'
 
+zarr_opt:
+    chunk_size_3d:
+        time: 10
+        latitude: 640
+        longitude: 1280
+    chunk_size_4d:
+        time: 10
+        level: 2 
+        latitude: 640
+        longitude: 1280
 
 zscore:
     U:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
@@ -39,6 +49,24 @@ residual:
     years_range: [1979, 2018]
     prefix: '6h_2018_residual'
 
+cache:
+    U:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/arXiv_cached_zarr/'
+    mean_loc: '/glade/derecho/scratch/ksha/CREDIT_data/mean_6h_1979_2018_16lev_0.25deg.nc'
+    std_loc: '/glade/derecho/scratch/ksha/CREDIT_data/std_residual_6h_1979_2018_16lev_0.25deg.nc'
+    years_range: [1979, 2023]
+    prefix: 'cache_arXiv_6h'
 
 
     
