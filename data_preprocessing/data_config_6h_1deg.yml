@@ -1,0 +1,72 @@
+qsub:
+    qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
+    scripts_loc: '/glade/u/home/ksha/credit-data/data_preprocessing/scripts/'
+
+zarr_opt:
+    chunk_size_3d:
+        time: 500
+        latitude: 192
+        longitude: 288
+    chunk_size_4d:
+        time: 500
+        level: 1 
+        latitude: 192
+        longitude: 288
+
+zscore:
+    U:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    SP:   '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    t2m:  '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    U500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Z500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_1h_1deg/*.nc'
+    save_loc: '/glade/derecho/scratch/wchapman/CREDIT/'
+    years_range: [1979, 2018]
+    prefix: '6h_2018'
+    
+residual:
+    U:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    SP:   '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    t2m:  '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    U500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Z500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_1h_1deg/*.nc'
+    save_loc: '/glade/derecho/scratch/wchapman/'
+    mean_loc: '/glade/derecho/scratch/wchapman/mean_time_1h_1979_2022_16lev_1deg.nc'
+    std_loc: '/glade/derecho/scratch/wchapman/std_time_1h_1979_2022_16lev_1deg.nc'
+    years_range: [1979, 2018]
+    prefix: '6h_2018_residual'
+
+cache:
+    U:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q:    '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    SP:   '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    t2m:  '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    V500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    U500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    T500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Z500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    Q500: '/glade/derecho/scratch/wchapman/y_ONEdeg_*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/derecho/scratch/wchapman/arXiv_cached_zarr/'
+    mean_loc: '/glade/derecho/scratch/wchapman/mean_time_1h_1979_2022_16lev_1deg.nc'
+    std_loc: '/glade/derecho/scratch/wchapman/std_time_1h_1979_2022_16lev_1deg.nc'
+    years_range: [1979, 2023]
+    prefix: 'cache_arXiv_6h'
+
+
+    
