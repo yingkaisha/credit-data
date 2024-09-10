@@ -1,28 +1,39 @@
 qsub:
     qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
     scripts_loc: '/glade/u/home/ksha/credit-data/data_preprocessing/scripts/'
+
+zarr_opt:
+    save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/ERA5_plevel_base/'
+    years_range: [1979, 2024]
+    prefix: 'ERA5_subset_6h'
+    subset_level: [1, 50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
+    
+    chunk_size_3d:
+        time: 1
+        latitude: 721
+        longitude: 1440
+    chunk_size_4d:
+        time: 1
+        level: 13 
+        latitude: 721
+        longitude: 1440
     
 ARCO:
     save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/ERA5_plevel_base/'
     years_range: [1979, 2024]
     prefix: 'ERA5_plevel_6h'
     varname_upper_air: ['geopotential', 'u_component_of_wind', 'v_component_of_wind', 'temperature', 'specific_humidity']
-    
     varname_single: ['surface_pressure', 'mean_sea_level_pressure', 'sea_surface_temperature', 'skin_temperature', 
-                     '2m_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind',  
-                     'total_cloud_cover']
-                     
+                     '2m_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind',  'total_cloud_cover']      
     varname_accum: ['total_precipitation', 'evaporation', 'top_net_solar_radiation', 'top_net_thermal_radiation',
                     'surface_net_solar_radiation', 'surface_net_thermal_radiation', 'surface_latent_heat_flux',
-                    'surface_sensible_heat_flux',]
-                    
+                    'surface_sensible_heat_flux',]   
     varname_static: ['land_sea_mask', 'geopotential_at_surface']
 
     chunk_size_3d:
         time: 10
         latitude: 721
         longitude: 1440
-        
     chunk_size_4d:
         time: 10
         level: 2 
@@ -36,7 +47,6 @@ RDA:
     source:
         anpl_format: '/glade/campaign/collections/rda/data/d633000/e5.oper.an.pl/%Y%m/'
         anpl_dt_pattern_format: '%Y%m%d00_%Y%m%d23.nc'
-       
         ansfc_format: '/glade/campaign/collections/rda/data/d633000/e5.oper.an.sfc/%Y%m/'
         ansfc_dt_pattern_format: '%Y%m{:02d}00_%Y%m{:02d}23.nc'
         
@@ -62,18 +72,11 @@ RDA:
         MSL:     '128_151_msl'
         SP:      '128_134_sp'
         TCC:     '128_164_tcc'
-                     
-    varname_accum: ['total_precipitation', 'evaporation', 'top_net_solar_radiation', 'top_net_thermal_radiation',
-                    'surface_net_solar_radiation', 'surface_net_thermal_radiation', 'surface_latent_heat_flux',
-                    'surface_sensible_heat_flux',]
-                    
-    varname_static: ['land_sea_mask', 'geopotential_at_surface']
-
+        
     chunk_size_3d:
         time: 4
         latitude: 721
         longitude: 1440
-        
     chunk_size_4d:
         time: 4
         level: 2 
