@@ -197,6 +197,55 @@ def process_file_group(file_list, output_dir, variables_levels, time_intervals=N
         ds.to_netcdf(output_file)
         ds.close()
 
+def process_file_group_with_transforms(file_list, output_dir, variables_levels, mean_ds, std_ds, time_intervals=None, size_thres=4000000000):
+    """
+    Process a group of NetCDF files, combining them into a single NetCDF file.
+
+    args:
+        file_list: a list of nc filenames
+        output_dir: save combined nc to this place
+        variables_levels, time_intervals: see `ds_subset_everything`
+    """
+
+    # get the folder name of the original, inidividual forecasts,
+    subdir_name = file_list[0].split(os.sep)[-2]
+    print("Processing subdirectory: {}".format(subdir_name))
+    
+    # use folder name as output file name
+    output_file = os.path.join(output_dir, f'{subdir_name}.nc')
+    print('Output name: {}'.format(output_file))
+    
+    # Check if the output file exists and its sizes
+    flag_run = True
+    
+    if os.path.exists(output_file):
+        
+        # not an empty file
+        if os.path.getsize(output_file) > size_thres:
+            
+            print("Skipping {} as {} already exists.".format(subdir_name, output_file))
+            flag_run = False
+        
+    if flag_run:
+        
+        # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
+        ds = xr.open_mfdataset(file_list, 
+                               combine='by_coords', 
+                               preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
+                               parallel=True)
+        
+        # make sure time coord is 'time'
+        try:
+            ds = ds.rename({'datetime': 'time'})
+        except:
+            pass
+
+        ds = ds*std_ds + mean_ds
+        # Save the dataset
+        ds.to_netcdf(output_file)
+        #ds.close()
+
+
 def get_doy_range(doy, days_before, days_after):
     '''
     Get a range of days based on the centered day and before / after days
