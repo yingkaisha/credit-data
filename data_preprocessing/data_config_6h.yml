@@ -1,0 +1,139 @@
+qsub:
+    qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
+    scripts_loc: '/glade/u/home/ksha/credit-data/data_preprocessing/scripts/'
+    
+ARCO:
+    save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/ERA5_plevel_base/'
+    years_range: [1979, 2024]
+    prefix: 'ERA5_plevel_6h'
+    varname_upper_air: ['geopotential', 'u_component_of_wind', 'v_component_of_wind', 'temperature', 'specific_humidity']
+    
+    varname_single: ['surface_pressure', 'mean_sea_level_pressure', 'sea_surface_temperature', 'skin_temperature', 
+                     '2m_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind',  
+                     'total_cloud_cover']
+                     
+    varname_accum: ['total_precipitation', 'evaporation', 'top_net_solar_radiation', 'top_net_thermal_radiation',
+                    'surface_net_solar_radiation', 'surface_net_thermal_radiation', 'surface_latent_heat_flux',
+                    'surface_sensible_heat_flux',]
+                    
+    varname_static: ['land_sea_mask', 'geopotential_at_surface']
+
+    chunk_size_3d:
+        time: 10
+        latitude: 721
+        longitude: 1440
+        
+    chunk_size_4d:
+        time: 10
+        level: 2 
+        latitude: 721
+        longitude: 1440
+
+RDA:
+    save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/ERA5_plevel_base/'
+    years_range: [1979, 2024]
+    prefix: 'ERA5_plevel_6h'
+    source:
+        anpl_format: '/glade/campaign/collections/rda/data/d633000/e5.oper.an.pl/%Y%m/'
+        anpl_dt_pattern_format: '%Y%m%d00_%Y%m%d23.nc'
+       
+        ansfc_format: '/glade/campaign/collections/rda/data/d633000/e5.oper.an.sfc/%Y%m/'
+        ansfc_dt_pattern_format: '%Y%m{:02d}00_%Y%m{:02d}23.nc'
+        
+    varname_upper_air:
+        U: '128_131_u'
+        V: '128_132_v'
+        Z: '128_130_t'
+        T: '128_129_z'
+        Q: '128_133_q'
+        
+    varname_cloud_process:
+        CRWC: '128_075_crwc'
+        CLWC: '128_246_clwc'
+        CIWC: '128_247_ciwc'
+        CSWC: '128_076_cswc'
+    
+    varname_single:
+        VAR_10U: '128_165_10u'
+        VAR_10V: '128_166_10v'
+        VAR_2T:  '128_167_2t'
+        SKT:     '128_235_skt'
+        SSTK:    '128_034_sstk'
+        MSL:     '128_151_msl'
+        SP:      '128_134_sp'
+        TCC:     '128_164_tcc'
+                     
+    varname_accum: ['total_precipitation', 'evaporation', 'top_net_solar_radiation', 'top_net_thermal_radiation',
+                    'surface_net_solar_radiation', 'surface_net_thermal_radiation', 'surface_latent_heat_flux',
+                    'surface_sensible_heat_flux',]
+                    
+    varname_static: ['land_sea_mask', 'geopotential_at_surface']
+
+    chunk_size_3d:
+        time: 4
+        latitude: 721
+        longitude: 1440
+        
+    chunk_size_4d:
+        time: 4
+        level: 2 
+        latitude: 721
+        longitude: 1440
+
+zscore:
+    U:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
+    years_range: [1979, 2018]
+    prefix: '6h_2018'
+    
+residual:
+    U:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/'
+    mean_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/mean_6h_1979_2018_16lev_0.25deg.nc'
+    std_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/std_6h_1979_2018_16lev_0.25deg.nc'
+    years_range: [1979, 2018]
+    prefix: '6h_2018_residual'
+
+cache:
+    U:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q:    '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    SP:   '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    t2m:  '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    V500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    U500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    T500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Z500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    Q500: '/glade/derecho/scratch/wchapman/SixHourly_y_TOTAL*'
+    tsi:  '/glade/derecho/scratch/dgagne/credit_solar_6h_0.25deg/*.nc'
+    save_loc: '/glade/derecho/scratch/ksha/CREDIT_data/arXiv_cached_zarr/'
+    mean_loc: '/glade/derecho/scratch/ksha/CREDIT_data/mean_6h_1979_2018_16lev_0.25deg.nc'
+    std_loc: '/glade/derecho/scratch/ksha/CREDIT_data/std_residual_6h_1979_2018_16lev_0.25deg.nc'
+    years_range: [1979, 2023]
+    prefix: 'cache_arXiv_6h'
+
+
+    
