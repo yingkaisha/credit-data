@@ -1,0 +1,100 @@
+qsub:
+    qsub_loc: '/glade/u/home/ksha/credit-data/qsub/'
+    scripts_loc: '/glade/u/home/ksha/credit-data/verification/scripts/'
+
+geo:
+    geo_file_nc: '/glade/campaign/cisl/aiml/ksha/CREDIT/ML_grid.nc'
+    regrid_weights_numpy: '/glade/campaign/cisl/aiml/ksha/CREDIT/griddata_weights.npy'
+
+ERA5_weatherbench:
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_weatherbench/interp/'
+    save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_weatherbench/'
+    year_range: [2018, 2022]
+    verif_variables:
+        geopotential: [500,]
+        specific_humidity: [500,]
+        temperature: [500,]
+        u_component_of_wind: [500,]
+        v_component_of_wind: [500,]
+        surface_pressure: null
+        2m_temperature: null
+    rename_variables:
+        geopotential: 'Z500'
+        specific_humidity: 'Q500'
+        temperature: 'T500'
+        u_component_of_wind: 'U500'
+        v_component_of_wind: 'V500'
+        surface_pressure: 'SP'
+        2m_temperature: 't2m'
+
+ERA5_ours:
+    save_loc: '/glade/campaign/cisl/aiml/wchapman/MLWPS/STAGING/SixHourly_TOTAL_2*'
+    save_loc_clim: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/ERA5_climo/'
+    year_range: [2018, 2022]
+    verif_variables: 
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null
+
+IFS:
+    save_loc: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/IFS/'
+    save_loc_gather: '/glade/campaign/cisl/aiml/ksha/CREDIT/gathered/IFS/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/verif/IFS/'
+    year_range: [2018, 2020]
+    lead_range: [6, 240]
+    verif_lead_range: [6, 240]
+    verif_variables:
+        geopotential: [500,]
+        specific_humidity: [500,]
+        temperature: [500,]
+        u_component_of_wind: [500,]
+        v_component_of_wind: [500,]
+        surface_pressure: null
+        2m_temperature: null
+    rename_variables:
+        geopotential: 'Z500'
+        specific_humidity: 'Q500'
+        temperature: 'T500'
+        u_component_of_wind: 'U500'
+        v_component_of_wind: 'V500'
+        surface_pressure: 'SP'
+        2m_temperature: 't2m'
+
+wxformer:
+    save_loc_rollout: '/glade/derecho/scratch/ksha/CREDIT/RAW_OUTPUT/wxformer_6h/'
+    save_loc_gather: '/glade/derecho/scratch/ksha/CREDIT/GATHER/wxformer_6h/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/VERIF/verif_6h/wxformer_6h/'
+    year_range: [2020, 2020]
+    lead_range: [6, 24]
+    verif_lead_range: [6, 24]
+    verif_variables: 
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null
+
+fuxi:
+    save_loc_rollout: '/glade/derecho/scratch/ksha/CREDIT/RAW_OUTPUT/fuxi_6h/'
+    save_loc_gather: '/glade/derecho/scratch/ksha/CREDIT/GATHER/fuxi_6h/'
+    save_loc_verif: '/glade/derecho/scratch/ksha/CREDIT/VERIF/verif_6h/fuxi_6h/'
+    year_range: [2018, 2020]
+    lead_range: [6, 24]
+    verif_lead_range: [6, 24]
+    verif_variables: 
+        V500: null
+        U500: null
+        T500: null
+        Q500: null
+        Z500: null
+        SP:  null
+        t2m: null
+
+        
+        
