@@ -28,6 +28,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import xarray as xr
+from dask.utils import SerializableLock
 
 def create_dir(path):
     """
@@ -150,102 +151,174 @@ def ds_subset_everything(ds, variables_levels, time_intervals=None):
         
     return ds_selected
 
-def process_file_group(file_list, output_dir, variables_levels, time_intervals=None, size_thres=4000000000):
-    """
-    Process a group of NetCDF files, combining them into a single NetCDF file.
+def process_file_group(file_list, output_dir, 
+                       variables_levels, 
+                       time_intervals=None, 
+                       size_thres=4000000000):
+    '''
+    Process a group of netCDF4 files, combining them into a single netCDF4 file.
+
+    Args:
+        file_list: List of NetCDF filenames.
+        output_dir: Directory to save the combined NetCDF4 file.
+        variables_levels, time_intervals: Parameters for subsetting the dataset.
+    '''
+    subdir_name = os.path.basename(os.path.dirname(file_list[0]))
+    print(f"Processing subdirectory: {subdir_name}")
+    
+    # Use folder name as output file name
+    output_file = os.path.join(output_dir, f'{subdir_name}.nc')
+    print(f'Output name: {output_file}')
+
+    # ==================================================================================================== #
+    # Check if the output file already exists and is valid
+    if os.path.exists(output_file):
+        try:
+            # Attempt to open the existing file to check for corruption
+            test_data = xr.open_dataset(output_file)
+            test_data.close()
+            print(f"File {output_file} is valid ... move to file size checks.")
+            
+            # Now check the file size against the threshold
+            if os.path.getsize(output_file) > size_thres:
+                print(f"Skipping {subdir_name} as {output_file} already exists and exceeds size threshold.")
+                # True: no need to re-do preprocess
+                return True
+        except Exception as e:
+            # If the file is corrupted, remove it
+            print(f"Corrupted file: {output_file} detected. Error: {e}. It will be removed.")
+            os.remove(output_file)
+
+    # ==================================================================================================== #
+    # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
+    
+    print('A new file will be created ...')
+    
+    try:
+        ds = xr.open_mfdataset(
+            file_list,
+            combine='by_coords',
+            preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals),
+            parallel=True,
+            lock=False  # h5py is thread-safe when using h5netcdf
+        )
+        
+        # Ensure time coordinate is named 'time'
+        if 'datetime' in ds.coords:
+            ds = ds.rename({'datetime': 'time'})
+
+        # Save the dataset using NetCDF4 format
+        ds.to_netcdf(output_file, format='NETCDF4')
+        print(f"Successfully saved combined dataset to {output_file}")
+    
+    except Exception as e:
+        # Catch any errors in file creation or dataset saving
+        print(f"File creation error: {e}. Incomplete file will be removed.")
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+                print(f"Incomplete file {output_file} has been removed.")
+            except Exception as remove_error:
+                print(f"Error removing incomplete file {output_file}: {remove_error}")
+    finally:
+        # Ensure dataset is closed to avoid memory leaks
+        try:
+            ds.close()
+        except NameError:
+            # ds was never created because of an error
+            print(f"Dataset object not created. Skipping close.")
+        except Exception as e:
+            print(f"Error closing dataset: {e}")
+    return False
+
+def process_file_group_with_transforms(file_list, output_dir, 
+                                       variables_levels,
+                                       mean_ds, std_ds, 
+                                       time_intervals=None, 
+                                       size_thres=4000000000):
+    '''
+    Process a group of NetCDF files, combining them into a single 
+    netCDF4 file and perform reverse z-score before saving
 
     args:
         file_list: a list of nc filenames
         output_dir: save combined nc to this place
         variables_levels, time_intervals: see `ds_subset_everything`
-    """
+    '''
 
-    # get the folder name of the original, inidividual forecasts,
-    subdir_name = file_list[0].split(os.sep)[-2]
-    print("Processing subdirectory: {}".format(subdir_name))
+    # Get the folder name of the original, individual forecasts
+    subdir_name = os.path.basename(os.path.dirname(file_list[0]))
+    print(f"Processing subdirectory: {subdir_name}")
     
-    # use folder name as output file name
+    # Use folder name as output file name
     output_file = os.path.join(output_dir, f'{subdir_name}.nc')
-    print('Output name: {}'.format(output_file))
+    print(f'Output name: {output_file}')
     
-    # Check if the output file exists and its sizes
-    flag_run = True
-    
+    # ==================================================================================================== #
+    # Check if the output file already exists and is valid
     if os.path.exists(output_file):
-        
-        # not an empty file
-        if os.path.getsize(output_file) > size_thres:
-            
-            print("Skipping {} as {} already exists.".format(subdir_name, output_file))
-            flag_run = False
-        
-    if flag_run:
-        
-        # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
-        ds = xr.open_mfdataset(file_list, 
-                               combine='by_coords', 
-                               preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
-                               parallel=True)
-        
-        # make sure time coord is 'time'
         try:
-            ds = ds.rename({'datetime': 'time'})
-        except:
-            pass
-    
-        # Save the dataset
-        ds.to_netcdf(output_file)
-        ds.close()
-
-def process_file_group_with_transforms(file_list, output_dir, variables_levels, mean_ds, std_ds, time_intervals=None, size_thres=4000000000):
-    """
-    Process a group of NetCDF files, combining them into a single NetCDF file.
-
-    args:
-        file_list: a list of nc filenames
-        output_dir: save combined nc to this place
-        variables_levels, time_intervals: see `ds_subset_everything`
-    """
-
-    # get the folder name of the original, inidividual forecasts,
-    subdir_name = file_list[0].split(os.sep)[-2]
-    print("Processing subdirectory: {}".format(subdir_name))
-    
-    # use folder name as output file name
-    output_file = os.path.join(output_dir, f'{subdir_name}.nc')
-    print('Output name: {}'.format(output_file))
-    
-    # Check if the output file exists and its sizes
-    flag_run = True
-    
-    if os.path.exists(output_file):
-        
-        # not an empty file
-        if os.path.getsize(output_file) > size_thres:
+            # Attempt to open the existing file to check for corruption
+            test_data = xr.open_dataset(output_file)
+            test_data.close()
+            print(f"File {output_file} is valid ... move to file size checks.")
             
-            print("Skipping {} as {} already exists.".format(subdir_name, output_file))
-            flag_run = False
-        
-    if flag_run:
-        
-        # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
-        ds = xr.open_mfdataset(file_list, 
-                               combine='by_coords', 
-                               preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals), 
-                               parallel=True)
-        
-        # make sure time coord is 'time'
-        try:
-            ds = ds.rename({'datetime': 'time'})
-        except:
-            pass
+            # Now check the file size against the threshold
+            if os.path.getsize(output_file) > size_thres:
+                print(f"Skipping {subdir_name} as {output_file} already exists and exceeds size threshold.")
+                # True: no need to re-do preprocess
+                return True
+        except Exception as e:
+            # If the file is corrupted, remove it
+            print(f"Corrupted file: {output_file} detected. Error: {e}. It will be removed.")
+            os.remove(output_file)
 
+    # ==================================================================================================== #
+    # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
+    
+    print('A new file will be created ...')
+
+    try:
+        # Open multiple NetCDF files as a single dataset and subset to specified variables/levels/time
+        ds = xr.open_mfdataset(
+            file_list,
+            combine='by_coords',
+            preprocess=lambda ds: ds_subset_everything(ds, variables_levels, time_intervals),
+            parallel=True,
+            lock=False  # h5py is thread-safe when using h5netcdf
+        )
+        
+        # Ensure time coordinate is named 'time'
+        if 'datetime' in ds.coords:
+            ds = ds.rename({'datetime': 'time'})
+    
+        # reverse z-score
         ds = ds*std_ds + mean_ds
-        # Save the dataset
-        ds.to_netcdf(output_file)
-        #ds.close()
-
-
+        
+        # Save the dataset using NetCDF4 format
+        ds.to_netcdf(output_file, format='NETCDF4', compute=True)
+        print(f"Successfully saved combined dataset to {output_file}")
+        
+    except Exception as e:
+        # Catch any errors in file creation or dataset saving
+        print(f"File creation error: {e}. Incomplete file will be removed.")
+        if os.path.exists(output_file):
+            try:
+                os.remove(output_file)
+                print(f"Incomplete file {output_file} has been removed.")
+            except Exception as remove_error:
+                print(f"Error removing incomplete file {output_file}: {remove_error}")
+    finally:
+        # Ensure dataset is closed to avoid memory leaks
+        try:
+            ds.close()
+        except NameError:
+            # ds was never created because of an error
+            print(f"Dataset object not created. Skipping close.")
+        except Exception as e:
+            print(f"Error closing dataset: {e}")
+    return False
+    
 def get_doy_range(doy, days_before, days_after):
     '''
     Get a range of days based on the centered day and before / after days
