@@ -11,7 +11,7 @@ import xarray as xr
 sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
 
-config_name = os.path.realpath('../verif_config.yml')
+config_name = os.path.realpath('../verif_config_6h.yml')
 
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
@@ -25,9 +25,8 @@ args = vars(parser.parse_args())
 
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
-
 # ====================== #
-model_name = 'IFS'
+model_name = 'wxformer'
 lead_range = conf[model_name]['lead_range']
 verif_lead_range = conf[model_name]['verif_lead_range']
 
@@ -74,6 +73,7 @@ filename_OURS = sorted(glob(conf[model_name]['save_loc_gather']+'*.nc'))
 year_range = conf[model_name]['year_range']
 years_pick = np.arange(year_range[0], year_range[1]+1, 1).astype(str)
 filename_OURS = [fn for fn in filename_OURS if any(year in fn for year in years_pick)]
+#filename_OURS = [fn for fn in filename_OURS if '00Z' in fn]
 
 L_max = len(filename_OURS)
 assert verif_ind_end <= L_max, 'verified indices (days) exceeds the max index available'
@@ -109,13 +109,15 @@ for fn_ours in filename_OURS:
     ds_ours = ds_ours.compute()
     
     ds_target = ds_ERA5_merge.sel(time=ds_ours['time']).compute()
-    
+
     # RMSE with latitude-based cosine weighting (check w_lat)
-    RMSE = np.sqrt((w_lat*(ds_ours - ds_target)**2).mean(['lat', 'lon']))
+    RMSE = np.sqrt(
+        (w_lat * (ds_ours-ds_target)**2).mean(['lat', 'lon'])
+    )
     
     verif_results.append(RMSE.drop_vars('time'))
-    
-    print('Completed: {}'.format(fn_ours))
+
+    print('Completedd: {}'.format(fn_ours))
     
 # Combine verif results
 ds_verif = xr.concat(verif_results, dim='days')
@@ -123,6 +125,7 @@ ds_verif = xr.concat(verif_results, dim='days')
 # Save the combined dataset
 print('Save to {}'.format(path_verif))
 ds_verif.to_netcdf(path_verif)
+
 
 
 

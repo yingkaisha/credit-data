@@ -11,7 +11,7 @@ import xarray as xr
 sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
 
-config_name = os.path.realpath('../verif_config.yml')
+config_name = os.path.realpath('../verif_config_6h.yml')
 
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
@@ -26,7 +26,7 @@ args = vars(parser.parse_args())
 verif_ind_start = int(args['verif_ind_start'])
 verif_ind_end = int(args['verif_ind_end'])
 # ====================== #
-model_name = 'wxformer'
+model_name = 'fuxi'
 lead_range = conf[model_name]['lead_range']
 verif_lead_range = conf[model_name]['verif_lead_range']
 

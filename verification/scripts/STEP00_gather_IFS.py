@@ -30,7 +30,7 @@ def interpolate(values, vtx, wts):
 sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
 
-config_name = os.path.realpath('../verif_config.yml')
+config_name = os.path.realpath('../verif_config_6h.yml')
 
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
@@ -124,10 +124,9 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
             
             # subset on initialization time
             ds_IFS_slice = ds_IFS.isel(time=slice(i_dt, i_dt+1))
-
             # -------------------------------------------------------------------------- #
             # interpolation section
-
+    
             # assign time and lead time coord info to the allocated xr.Dataset
             ds_IFS_regrid['time'] = ds_IFS_slice['time']
             ds_IFS_regrid['prediction_timedelta'] = ds_IFS_slice['prediction_timedelta']
@@ -135,15 +134,16 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
             # loop through variables
             for var_name in list_var_names:
                 
+                print('Interpolate {}'.format(var_name))
                 # allocate regridded IFS on multi-lead times
                 allocate_interp = np.empty((N_leads,)+shape_OURS)
                 
                 # loop through lead times
                 for i_lead in range(N_leads):
-
+    
                     # select the variable on the current lead time
                     IFS_var = ds_IFS_slice[var_name].isel(time=0, prediction_timedelta=i_lead)
-
+    
                     # ========================================================================== #
                     if flip_lat:
                         IFS_var = np.flipud(IFS_var)
@@ -162,10 +162,10 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
                         'lat': y_OURS, 
                         'lon': x_OURS,},
                     dims=['time', 'prediction_timedelta', 'lat', 'lon'])
-
+    
                 # add xr.DataArray to the allocated xr.Dataset
                 ds_IFS_regrid[var_name] = IFS_var_regrid_da
-
+    
             # ============================================================================================== #
             # --------------------------------- Unify the lead time coords --------------------------------- #
             ## WeatherBench uses 'prediction_timedelta' for (relative) lead time and 'time' for init time
@@ -178,9 +178,7 @@ for i_dt, dt_index in enumerate(init_time[verif_ind_start:verif_ind_end]):
             ds_IFS_regrid = ds_IFS_regrid.rename({'prediction_timedelta':'time'})
             ds_IFS_regrid['time'] = absolute_lead_time
             # ============================================================================================== #
-            
             # Save to netCDF4
             ds_IFS_regrid.to_netcdf(save_name)
             print('Save to {}'.format(save_name))
-
-
+            
