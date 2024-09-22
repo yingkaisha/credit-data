@@ -11,7 +11,7 @@ import xarray as xr
 sys.path.insert(0, os.path.realpath('../../libs/'))
 import verif_utils as vu
 
-config_name = os.path.realpath('../verif_config.yml')
+config_name = os.path.realpath('../verif_config_6h.yml')
 
 with open(config_name, 'r') as stream:
     conf = yaml.safe_load(stream)
