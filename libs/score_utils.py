@@ -12,6 +12,7 @@ Content:
     - BS_binary_1d()
     - BS_binary_1d_nan()
     - score_bootstrap_1d()
+    - bootstrap_confidence_intervals()
     
 Yingkai Sha
 ksha@ucar.edu
@@ -370,3 +371,47 @@ def score_bootstrap_1d(data, bootstrap_n=100):
             temp[i, b] = np.mean(raw[ind_bagging])
             
     return temp
+
+
+
+def bootstrap_confidence_intervals(rmse_t2m, 
+                                   num_bootstrap_samples=1000, 
+                                   lower_quantile=0.05, 
+                                   upper_quantile=0.95,
+                                   random_seed=None):
+    """
+    Compute confidence intervals over the 'day' dimension of rmse_t2m using bootstrapping.
+
+    Parameters:
+    - rmse_t2m: numpy array of shape (n_days, n_lead_times)
+    - num_bootstrap_samples: int, number of bootstrap samples to draw
+    - lower_percentile, upper_percentile: float, confidence intervals
+    - random_seed: int or None, seed for the random number generator for reproducibility
+
+    Returns:
+    - ci_lower: numpy array of shape (n_lead_times,), lower bounds of the confidence intervals
+    - ci_upper: numpy array of shape (n_lead_times,), upper bounds of the confidence intervals
+    """
+    if random_seed is not None:
+        np.random.seed(random_seed)
+        
+    # call the numba-optimized function
+    bootstrap_data = bootstrap_core(rmse_t2m, num_bootstrap_samples)
+    
+    # Compute confidence intervals outside numba
+    ci_lower = np.quantile(bootstrap_data, lower_quantile, axis=0)
+    ci_upper = np.quantile(bootstrap_data, upper_quantile, axis=0)
+    mean_score = np.mean(bootstrap_data, axis=0)
+    
+    return mean_score, ci_lower, ci_upper
+
+@nb.njit()
+def bootstrap_core(rmse_t2m, num_bootstrap_samples):
+    n_days, n_lead_times = rmse_t2m.shape
+    bootstrap_data = np.empty((num_bootstrap_samples, n_lead_times))
+    
+    for i in range(num_bootstrap_samples):
+        ind = np.random.randint(0, n_days)
+        bootstrap_data[i, :] = rmse_t2m[ind, :]  # Shape: (n_days, n_lead_times)
+        
+    return bootstrap_data

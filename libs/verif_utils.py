@@ -465,4 +465,3 @@ def weighted_temporal_sum(ds, center_doy, center_hour, width, var_names):
 
     return xr.merge(results)
 
-
